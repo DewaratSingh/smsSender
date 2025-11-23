@@ -4,7 +4,7 @@ A lightweight Node.js package to send SMS messages from your server
 using a connected Android device.
 It uses **Socket.IO** to communicate with your Android app, enabling
 real-time SMS sending and status updates.
-
+ 
 ------------------------------------------------------------------------
 
 ## 🚀 Features
