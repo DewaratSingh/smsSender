@@ -1,7 +1,7 @@
 # SmsSender
 
 A lightweight Node.js package to send SMS messages from your server
-using a connected Android device.\
+using a connected Android device.
 It uses **Socket.IO** to communicate with your Android app, enabling
 real-time SMS sending and status updates.
 
@@ -9,10 +9,10 @@ real-time SMS sending and status updates.
 
 ## 🚀 Features
 
--   Start an SMS server easily\
--   Send SMS from Node.js\
--   Receive delivery status events\
--   Works over local network / hotspot\
+-   Start an SMS server easily
+-   Send SMS from Node.js
+-   Receive delivery status events
+-   Works over local network / hotspot
 -   Simple API with minimal setup
 
 ------------------------------------------------------------------------
@@ -29,9 +29,9 @@ npm install @dewaratsingh/smssender
 
 ### Below is a fully working server example that:
 
--   ✔ Starts the SMS server\
--   ✔ Sends an SMS when someone visits `/`\
--   ✔ Receives SMS sending status from Android\
+-   ✔ Starts the SMS server
+-   ✔ Sends an SMS when someone visits `/`
+-   ✔ Receives SMS sending status from Android
 -   ✔ Uses a single HTTP + Socket.IO server
 
 ``` js
@@ -80,10 +80,8 @@ Starts the internal SMS Socket.IO server.
 startSmsServer({ server, port });
 ```
 
-  Name     Type          Description
-  -------- ------------- -------------------------------
-  server   http.Server   Existing HTTP server instance
-  port     number        Port to run Socket.IO server
+  server  =>  http.Server =>   Existing HTTP server instance <br>
+  port    => number   =>     Port to run Socket.IO server
 
 ------------------------------------------------------------------------
 
@@ -123,12 +121,10 @@ onSMSStatus((data) => {
 
 You need the companion Android app that:
 
--   Connects to your Node.js server\
--   Receives SMS send requests\
--   Sends SMS using native Android API\
+-   Connects to your Node.js server
+-   Receives SMS send requests
+-   Sends SMS using native Android API
 -   Sends delivery status events
-
-➡️ (Add your Android app GitHub / APK link here)
 
 ------------------------------------------------------------------------
 
@@ -141,12 +137,12 @@ Both the Android device and server must be on the **same WiFi / hotspot
 
 ## 🧑‍💻 Author
 
-**Dewarat Singh**\
+**Dewarat Singh**
 NPM: **@dewaratsingh**
 
 ------------------------------------------------------------------------
 
 ## 📄 License
 
-MIT License\
+MIT License
 You may use, modify, and distribute this package freely with credit.
