@@ -1,16 +1,16 @@
 # SmsSender
 
-A lightweight Node.js package to send SMS messages from your server
+A lightweight Node.js package to send/receive SMS messages from your server
 using a connected Android device.
 It uses **Socket.IO** to communicate with your Android app, enabling
-real-time SMS sending and status updates.
+real-time SMS sending and receiving.
  
 ------------------------------------------------------------------------
 
 ## 🚀 Features
 
 -   Start an SMS server easily
--   Send SMS from Node.js
+-   Send/receive SMS from Node.js
 -   Receive delivery status events
 -   Works over local network / hotspot
 -   Simple API with minimal setup
@@ -97,7 +97,7 @@ sendSMS("+911234567890", "Your message here");
 
 ### 3. `onSMSStatus(callback)`
 
-Receives SMS sending and delivery reports.
+Receives SMS and delivery reports .
 
 ``` js
 onSMSStatus((data) => {
@@ -123,7 +123,7 @@ You need the companion Android app that:
 
 -   Connects to your Node.js server
 -   Receives SMS send requests
--   Sends SMS using native Android API
+-   Sends/receive SMS using native Android API
 -   Sends delivery status events
 
 ------------------------------------------------------------------------
@@ -137,7 +137,7 @@ Both the Android device and server must be on the **same WiFi / hotspot
 
 ## 🧑‍💻 Author
 
-**Dewarat Singh**
+**Dewarat Singh** <br>
 NPM: **@dewaratsingh**
 
 ------------------------------------------------------------------------
