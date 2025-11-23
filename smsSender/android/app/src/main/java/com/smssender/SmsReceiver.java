@@ -39,7 +39,7 @@ public class SmsReceiver extends BroadcastReceiver {
     private void sendToReactNative(String sender, String message) {
         ReactContext reactContext = MainApplication.getReactContext();
         if (reactContext != null) {
-            WritableMap map = Arguments.createMap();
+            WritableMap map = Arguments.createMap(); 
             map.putString("sender", sender);
             map.putString("message", message);
 
