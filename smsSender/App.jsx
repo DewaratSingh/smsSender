@@ -1,10 +1,26 @@
-// App.js
-import React, { useState } from 'react';
-import { PermissionsAndroid, Platform, Alert, NativeModules } from 'react-native';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet } from 'react-native';
+// App.jsx
+import React, { useState, useEffect } from 'react';
+import {
+  PermissionsAndroid,
+  Platform,
+  Alert,
+  NativeModules,
+  NativeEventEmitter,
+  DeviceEventEmitter,
+  View,
+  Text,
+  TextInput,
+  Button,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+
 import { connectToServer, onServer, emitToServer } from './src/socket';
 
-const { SendSms } = NativeModules; // Our native module
+const { SendSms } = NativeModules;
+
+// For incoming SMS events
+const smsEventEmitter = new NativeEventEmitter();
 
 export default function App() {
   const [serverUrl, setServerUrl] = useState('');
@@ -14,58 +30,78 @@ export default function App() {
     setLogs(prev => [...prev, text]);
   }
 
-  // Request SMS permission for Android
-  async function requestSmsPermission() {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.SEND_SMS,
-          {
-            title: 'SMS Permission',
-            message: 'App needs permission to send SMS directly',
-            buttonPositive: 'OK',
-            buttonNegative: 'Cancel',
-          }
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        return false;
-      }
+  // 🔥 LISTEN FOR INCOMING SMS FROM NATIVE MODULE
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('smsReceived', data => {
+      addLog(`📩 Incoming SMS from ${data.sender}: ${data.message}`);
+
+      // Forward to server
+      emitToServer('sms-status', {
+        from: data.sender,
+        message: data.message,
+        type: "INCOMING_SMS"
+      });
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  // 📌 Request permissions
+  async function requestPermissions() {
+    if (Platform.OS !== 'android') return true;
+
+    try {
+      const granted = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.SEND_SMS,
+        PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
+        PermissionsAndroid.PERMISSIONS.READ_SMS,
+      ]);
+
+      return (
+        granted['android.permission.SEND_SMS'] === PermissionsAndroid.RESULTS.GRANTED &&
+        granted['android.permission.RECEIVE_SMS'] === PermissionsAndroid.RESULTS.GRANTED &&
+        granted['android.permission.READ_SMS'] === PermissionsAndroid.RESULTS.GRANTED
+      );
+    } catch (err) {
+      console.warn(err);
+      return false;
     }
-    return true; // iOS fallback
   }
 
-  const connectHandler = () => {
+  // 🔌 Connect to server
+  const connectHandler = async () => {
     if (!serverUrl) {
       Alert.alert('Error', 'Enter server URL');
       return;
     }
+
     addLog('Connecting to ' + serverUrl);
-    const socket = connectToServer(serverUrl);
+    connectToServer(serverUrl);
     addLog('Connected to ' + serverUrl);
 
-    onServer('send-sms', async data => {
-      addLog('SMS Request: ' + JSON.stringify(data));
+    const granted = await requestPermissions();
+    if (!granted) {
+      addLog('❌ SMS Permissions not granted');
+      return;
+    }
 
-      const hasPermission = await requestSmsPermission();
-      if (!hasPermission) {
-        addLog('SMS Permission Denied');
-        return;
-      }
+    // Listen for server -> send-sms
+    onServer('send-sms', async data => {
+      addLog('📤 Send SMS Request: ' + JSON.stringify(data));
 
       try {
-        // Call native module to send SMS silently
-        const result = await SendSms.sendSMS(data.number, data.message);
-        addLog('SMS SENT: ' + data.number + ' → ' + data.message);
+        await SendSms.sendSMS(data.number, data.message);
+
+        addLog(`✅ SMS SENT to ${data.number}`);
 
         emitToServer('sms-status', {
           status: 'SMS_SENT',
           number: data.number,
           message: data.message,
         });
-      } catch (error) {
-        addLog('SMS ERROR: ' + error);
+      } catch (err) {
+        addLog('❌ SMS ERROR: ' + err);
+
         emitToServer('sms-status', {
           status: 'FAILED',
           number: data.number,
@@ -89,8 +125,8 @@ export default function App() {
       <Button title="Connect" onPress={connectHandler} />
 
       <ScrollView style={styles.logBox}>
-        {logs.map((text, i) => (
-          <Text key={i}>{text}</Text>
+        {logs.map((t, i) => (
+          <Text key={i}>{t}</Text>
         ))}
       </ScrollView>
     </View>

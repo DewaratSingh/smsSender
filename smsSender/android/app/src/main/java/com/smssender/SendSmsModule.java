@@ -11,6 +11,7 @@ public class SendSmsModule extends ReactContextBaseJavaModule {
 
     public SendSmsModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        MainApplication.setReactContext(reactContext);
     }
 
     @Override
